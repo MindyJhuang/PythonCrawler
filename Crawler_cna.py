@@ -26,19 +26,23 @@ def get_news_link (url):
     get_url = url+'%d.aspx'
     fomate = "%s_list.txt"
     file_name = fomate%get_url.split('list/')[1].split('-')[0]    
-    for page in range (1,5):
-        news_url = get_url%page
-        result = requests.get(news_url)
-        response = result.text.encode('utf8')
-        soup = BeautifulSoup(response)
-        link_list = soup.find('div',{'class':'block block_p7'}).findAll('a')
-        if len(link_list) > 0:
-            for links in link_list:
-                news_link = urlparse.urljoin('http://www.cna.com.tw',links['href'])
-                check_link(news_link, file_name)
-                #print news_link
-        else:
-            break
+    for page in range (1,3):
+	try:
+            news_url = get_url%page
+            result = requests.get(news_url)
+            response = result.text.encode('utf8')
+            soup = BeautifulSoup(response)
+            link_list = soup.find('div',{'class':'block block_p7'}).findAll('a')
+            if len(link_list) > 0:
+                for links in link_list:
+                    news_link = urlparse.urljoin('http://www.cna.com.tw',links['href'])
+                    check_link(news_link, file_name)
+                    #print news_link
+            else:
+                break
+	except:
+            print news_url
+
     f = open("cna/"+file_name, 'w')       
     for overwrite_link in new_link_dic: 
         f.write(overwrite_link + "\n")
@@ -60,17 +64,20 @@ def check_link (news_link, file_name):
 
 def retry_get_info():
     for retry_link in retry_dic:
-        result = requests.get(retry_link)
-        response = result.text.encode('utf8')
-        soup = BeautifulSoup(response)
-        title = soup.find('h2').text
+	try:
+            result = requests.get(retry_link)
+            response = result.text.encode('utf8')
+            soup = BeautifulSoup(response)
+            title = soup.find('h2').text
 
-        filename = retry_link.split('news/')[1].split('/')[0]+'_list.txt'    
-        time_clean = soup.find('div',{'class':'date'}).contents[0].replace('\n','').replace('\r','').replace('        ','')
-        date = time_clean.encode('utf8').split('：')[1]
-        content = soup.find('div',{'class':'box_2'}).text.replace('\n','')[:-7]
-        data_insert(title, date, content, retry_link, filename)
-        time.sleep(5) 
+            filename = retry_link.split('news/')[1].split('/')[0]+'_list.txt'    
+            time_clean = soup.find('div',{'class':'date'}).contents[0].replace('\n','').replace('\r','').replace('        ','')
+            date = time_clean.encode('utf8').split('：')[1]
+            content = soup.find('div',{'class':'box_2'}).text.replace('\n','')[:-7]
+            data_insert(title, date, content, retry_link, filename)
+            time.sleep(5)
+	except:
+	    print retry_link
 
 def get_news_contents (path):
     dirs = os.listdir(path)
