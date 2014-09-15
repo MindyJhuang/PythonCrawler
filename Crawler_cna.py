@@ -88,7 +88,7 @@ def get_news_contents (path):
                 content = soup.find('div',{'class':'box_2'}).text.replace('\n','')[:-7]
                 data_insert(title, date, content, news_link, filename)
                 time.sleep(5)
-                print '.'
+                print '.',
             except:
                 retry_dic[news_link]=1
                 #print news_link
